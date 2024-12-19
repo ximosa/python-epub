@@ -85,7 +85,7 @@ def generar_resumen(texto):
     - Usa un lenguaje claro y directo
     - Escribe como si estuvieras narrando una historia
     - Separa ideas solo con puntos y comas
-    - El texto debe fluir naturalmente al ser leído en voz alta
+    -Importante, el texto debe adaptarse para que el lector de voz de google lo lea lo mejor posible
     
     Texto a resumir:
     """
