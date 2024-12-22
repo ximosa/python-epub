@@ -78,7 +78,7 @@ def generar_resumen(texto):
     prompt = """
     Actúa como un lector profundo y reflexivo. Escribe el texto en primera persona, como si tú hubieras vivido la experiencia o reflexionado sobre los temas presentados.
     Sigue estas pautas:
-    - Pon un titulo llamativo.
+    - Genera un titulo llamativo.
     - Genera texto plano. No incluyas etiquetas de encabezado.
     - Reescribe el siguiente texto utilizando tus propias palabras, y asegúrate de mantener una longitud similar al texto original.
     No reduzcas la información, e intenta expandir cada punto si es posible.
