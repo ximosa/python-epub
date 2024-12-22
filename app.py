@@ -79,7 +79,7 @@ def generar_resumen(texto):
     Actúa como un lector profundo y reflexivo. Escribe el texto en primera persona, como si tú hubieras vivido la experiencia o reflexionado sobre los temas presentados.
     Sigue estas pautas:
     - Pon un titulo llamativo.
-    - Genera texto plano sobre.No incluyas etiquetas HTML de encabezado.
+    - Genera texto plano. No incluyas etiquetas de encabezado.
     - Reescribe el siguiente texto utilizando tus propias palabras, y asegúrate de mantener una longitud similar al texto original.
     No reduzcas la información, e intenta expandir cada punto si es posible.
     No me generes un resumen, quiero un texto parafraseado y expandido con una longitud comparable al texto original.
@@ -89,7 +89,7 @@ def generar_resumen(texto):
     - No uses nombres propios ni nombres de lugares específicos, refiérete a ellos como "un lugar", "una persona", "otro personaje", etc.
     - Usa un lenguaje claro y directo.
     - Escribe como si estuvieras narrando una historia.
-    - Separa ideas solo con puntos y comas.
+    - Separa ideas con puntos y comas.
     -Importante, el texto debe adaptarse para que el lector de voz de google lo lea lo mejor posible
     
     Texto a resumir:
