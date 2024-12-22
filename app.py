@@ -76,9 +76,9 @@ def generar_resumen(texto):
     modelo = genai.GenerativeModel('gemini-pro')
     
     prompt = """
-    Actúa como un lector profundo y reflexivo. Escribe un resumen conciso y coherente del texto en primera persona, como si tú hubieras vivido la experiencia o reflexionado sobre los temas presentados.
+    Actúa como un lector profundo y reflexivo. Escribe el texto en primera persona, como si tú hubieras vivido la experiencia o reflexionado sobre los temas presentados.
     Sigue estas pautas:
-    - Pon un titulo llamativo en formato de texto
+    - Pon un titulo llamativo en formato de texto.
     - Reescribe el siguiente texto utilizando tus propias palabras, y asegúrate de mantener una longitud similar al texto original.
     No reduzcas la información, e intenta expandir cada punto si es posible.
     No me generes un resumen, quiero un texto parafraseado y expandido con una longitud comparable al texto original.
