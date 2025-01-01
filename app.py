@@ -11,7 +11,7 @@ import time
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    handlers=[logging.StreamHandler()]  # Muestra logs en la consola también
 )
 
 def extraer_epub(ruta_epub):
@@ -66,17 +66,9 @@ def dividir_texto(texto, max_chars=30000):
             indice = texto[:max_chars].rfind(' ')
         partes.append(texto[:indice + 1])
         texto = texto[indice + 1:].strip()
-        
-        if not texto:
-            break
-        
-        if len(texto) < max_chars:
-            partes.append(texto)
-            break
-        
+
     logging.info(f"Texto dividido en {len(partes)} partes")
     return partes
-
 
 def generar_resumen(texto):
     logging.info("Iniciando generación de resumen")
@@ -90,45 +82,25 @@ def generar_resumen(texto):
         st.error("La variable de entorno GEMINI_API_KEY no está configurada.")
         st.stop()  # Detener la app si no hay API Key
 
-    prompt_etapa1 = """
-        Actúa como un lector profundo y reflexivo. Escribe el texto en primera persona, como si tú hubieras vivido la experiencia o reflexionado sobre los temas presentados.
-        Sigue estas pautas:
-        - Genera un titulo llamativo.
-        - Genera texto plano. No incluyas etiquetas de encabezado.
-        - Reescribe el siguiente texto utilizando tus propias palabras, y asegúrate de mantener una longitud similar al texto original.
-        No reduzcas la información, e intenta expandir cada punto si es posible.
-        No me generes un resumen, quiero un texto parafraseado y expandido con una longitud comparable al texto original.
-        - Evita mencionar nombres de personajes o del autor.
-        - Concentra el resumen en la experiencia general, las ideas principales, los temas y las emociones transmitidas por el texto.
-        - Utiliza un lenguaje evocador y personal, como si estuvieras compartiendo tus propias conclusiones tras una profunda reflexión.
-        - No uses nombres propios ni nombres de lugares específicos, refiérete a ellos como "un lugar", "una persona", "otro personaje", etc.
-        - Usa un lenguaje claro y directo.
-        - Escribe como si estuvieras narrando una historia.
-        - Separa ideas con puntos y comas.
-        - Importante, el texto debe adaptarse para que el lector de voz de google lo lea lo mejor posible
 
-        Texto a parafrasear:
-    """
+    prompt = """
+    Actúa como un lector profundo y reflexivo. Escribe el texto en primera persona, como si tú hubieras vivido la experiencia o reflexionado sobre los temas presentados.
+    Sigue estas pautas:
+    - Genera un titulo llamativo.
+    - Genera texto plano. No incluyas etiquetas de encabezado.
+    - Reescribe el siguiente texto utilizando tus propias palabras, y asegúrate de mantener una longitud similar al texto original.
+    No reduzcas la información, e intenta expandir cada punto si es posible.
+    No me generes un resumen, quiero un texto parafraseado y expandido con una longitud comparable al texto original.
+    - Evita mencionar nombres de personajes o del autor.
+    - Concentra el resumen en la experiencia general, las ideas principales, los temas y las emociones transmitidas por el texto.
+    - Utiliza un lenguaje evocador y personal, como si estuvieras compartiendo tus propias conclusiones tras una profunda reflexión.
+    - No uses nombres propios ni nombres de lugares específicos, refiérete a ellos como "un lugar", "una persona", "otro personaje", etc.
+    - Usa un lenguaje claro y directo.
+    - Escribe como si estuvieras narrando una historia.
+    - Separa ideas con puntos y comas.
+    -Importante, el texto debe adaptarse para que el lector de voz de google lo lea lo mejor posible
 
-    prompt_etapa2 = """
-        Actúa como un lector profundo y reflexivo. Escribe el texto en primera persona, como si tú hubieras vivido la experiencia o reflexionado sobre los temas presentados.
-        Sigue estas pautas:
-        - Genera un titulo llamativo.
-        - Genera texto plano. No incluyas etiquetas de encabezado.
-        - Reescribe el siguiente texto utilizando tus propias palabras, y asegúrate de mantener una longitud similar al texto original.
-        No reduzcas la información, e intenta expandir cada punto si es posible.
-        No me generes un resumen, quiero un texto parafraseado y expandido con una longitud comparable al texto original.
-        - Evita mencionar nombres de personajes o del autor.
-        - Concentra el resumen en la experiencia general, las ideas principales, los temas y las emociones transmitidas por el texto.
-        - Utiliza un lenguaje evocador y personal, como si estuvieras compartiendo tus propias conclusiones tras una profunda reflexión.
-        - No uses nombres propios ni nombres de lugares específicos, refiérete a ellos como "un lugar", "una persona", "otro personaje", etc.
-        - Usa un lenguaje claro y directo.
-        - Escribe como si estuvieras narrando una historia.
-        - Separa ideas con puntos y comas.
-        -Importante, el texto debe adaptarse para que el lector de voz de google lo lea lo mejor posible
-        -Importante, el texto debe ser largo y no omitir detalles importantes
-
-        Textos a parafrasear:
+    Texto a resumir:
     """
 
     max_retries = 3
@@ -136,63 +108,31 @@ def generar_resumen(texto):
 
     try:
         partes = dividir_texto(texto)
-        textos_parafraseados = []
+        resumenes = []
 
-        # Etapa 1: Parafrasear cada parte
         for i, parte in enumerate(partes, 1):
             logging.info(f"Procesando parte {i}/{len(partes)}")
             retry_count = 0
 
             while retry_count < max_retries:
                 try:
-                    respuesta = modelo.generate_content(prompt_etapa1 + parte)
-                    textos_parafraseados.append(respuesta.text)
-                    logging.info(f"Parte {i} parafraseada correctamente")
-                    time.sleep(base_delay)
+                    respuesta = modelo.generate_content(prompt + parte)
+                    resumenes.append(respuesta.text)
+                    logging.info(f"Parte {i} resumida correctamente")
+                    time.sleep(base_delay)  # Mayor pausa entre llamadas
                     break
 
                 except Exception as e:
                     retry_count += 1
-                    wait_time = base_delay * (2 ** retry_count)
+                    wait_time = base_delay * (2 ** retry_count)  # Backoff exponencial
                     logging.warning(f"Intento {retry_count} fallido. Esperando {wait_time} segundos...")
                     time.sleep(wait_time)
 
                     if retry_count == max_retries:
                         logging.error(f"Error en parte {i} después de {max_retries} intentos: {str(e)}")
                         continue
-        
-        # Etapa 2: Unir todos los textos y parafrasear nuevamente
-        texto_completo_parafraseado = "\n\n".join(textos_parafraseados)
-        
-        # Etapa 3: Si el texto es muy corto, reintentar con otro prompt
-        
-        retry_count = 0
-        
-        while len(texto_completo_parafraseado) < len(texto) / 2 and retry_count < max_retries:
-            
-            
-            logging.info(f"Resumen inicial muy corto ({len(texto_completo_parafraseado)} vs {len(texto)}), intentando nuevamente...")
-            
-            try:
-                
-                respuesta_final = modelo.generate_content(prompt_etapa2 + texto_completo_parafraseado)
-                texto_completo_parafraseado = respuesta_final.text
-                logging.info(f"Resumen final generado correctamente")
-                break
 
-            except Exception as e:
-                
-                retry_count += 1
-                wait_time = base_delay * (2 ** retry_count)
-                logging.warning(f"Intento {retry_count} fallido. Esperando {wait_time} segundos...")
-                time.sleep(wait_time)
-                
-                if retry_count == max_retries:
-                    logging.error(f"Error generando resumen después de {max_retries} intentos: {str(e)}")
-                    
-                    break
-        
-        return texto_completo_parafraseado
+        return "\n\n".join(resumenes)
 
     except Exception as e:
         logging.error(f"Error en generación de resumen: {str(e)}")
